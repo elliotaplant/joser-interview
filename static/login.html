@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Todo App Login</title>
+  </head>
+  <body>
+    <h1>Login</h1>
+    <label>Username: <input id="username"></label>
+    <br>
+    <label>Password: <input id="password" type="password"></label>
+    <br>
+    <button type="button" id="login">Login</button>
+    <button type="button" id="signup">Sign Up</button>
+
+    <script type="text/javascript">
+      function post(route, body) {
+        return fetch(route, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+      }
+
+      login.onclick = async () => {
+        const response = await post("login", { username: username.value, password: password.value });
+        const body = await response.json();
+        localStorage.setItem('token', body.token);
+        localStorage.setItem('expiresAt', body.expiresAt);
+        localStorage.setItem('userId', body.userId);
+        window.location.href = '/todos.html';
+      }
+
+      signup.onclick = async () => {
+        const response = await post("signup", { username: username.value, password: password.value });
+        const body = await response.json();
+        localStorage.setItem('token', body.token);
+        localStorage.setItem('expiresAt', body.expiresAt);
+        localStorage.setItem('userId', body.userId);
+        window.location.href = '/todos.html';
+      }
+    </script>
+  </body>
+</html>

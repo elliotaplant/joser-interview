@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Todo App</title>
+    <style media="screen">
+      li {
+        cursor: pointer;
+        list-style: none;
+      }
+      .completed {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Todos</h1>
+
+    <label>Create Todo: <input id="createInput" /></label>
+    <button type="button" id="createBtn">Create</button>
+    <button type="button" id="logOutBtn">Log Out</button>
+
+    <ul id="todosUl"></ul>
+
+    <script type="text/javascript">
+      // Gets Todos from the server and adds them to the page
+      async function loadTodos() {
+        window.todos = await get(`/todos/${localStorage.getItem('userId')}`);
+        renderTodos();
+      }
+
+      // Creates a todo
+      async function createTodo() {
+        const name = createInput.value;
+        createInput.value = '';
+        const todo = await post(`/todos/${localStorage.getItem('userId')}`, { name });
+        window.todos.unshift(todo);
+        renderTodos();
+      }
+      createBtn.onclick = createTodo;
+
+      // Toggles the "completed" property of a todo
+      async function toggleTodo(event) {
+        const updatedTodo = await put(`/todos/${localStorage.getItem('userId')}`, { name:event.target.dataset.name });
+        window.todos = window.todos.map(todo => todo.name === updatedTodo.name ? updatedTodo : todo);
+        renderTodos();
+      }
+
+      function renderTodos() {
+        todosUl.innerHTML = todos.map(todo => `
+          <li class="${todo.completed ? 'completed' : 'uncompleted'}"
+            onclick="toggleTodo(event)"
+            data-name=${todo.name}>
+              ${todo.name}
+          </li>
+        `)
+          .join('\n');
+      }
+
+      // Checks to see if user has credentials in localStorage
+      function hasValidCredentials() {
+        const token = localStorage.getItem('token');
+        const expiresAt = localStorage.getItem('expiresAt');
+        const userId = localStorage.getItem('userId');
+        return token && expiresAt && userId && expiresAt > new Date().valueOf();
+      }
+
+      // Removes users credentials and sends them to the login page
+      function logOut() {
+        localStorage.setItem('token', null);
+        localStorage.setItem('expiresAt', null);
+        localStorage.setItem('userId', null);
+        window.location.replace('/login.html');
+      }
+      logOutBtn.onclick = logOut;
+
+      // App initialization
+      document.addEventListener("DOMContentLoaded", async (event) => {
+        // Check credentials
+        if (!hasValidCredentials()) {
+          logOut();
+          return;
+        }
+
+        // Load Todos
+        try {
+          const todos = await loadTodos()
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      // Helper method to wrap a fetch post request
+      async function post(route, body) {
+        const resp = await fetch(route, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        return resp.json();
+      }
+
+      // Helper method to wrap a fetch put request
+      async function put(route, body) {
+        const resp = await fetch(route, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        return resp.json();
+      }
+
+      // Helper method to wrap a json fetch get request
+      async function get(route, body) {
+        const resp = await fetch(route);
+        return resp.json();
+      }
+
+    </script>
+  </body>
+</html>
