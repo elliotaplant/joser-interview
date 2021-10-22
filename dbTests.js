@@ -32,7 +32,8 @@ async function testInitHandlesErrors() {
 }
 
 async function testCreateUser() {
-  // your code here
+  console.log('Add your test here');
 }
 
 testInitHandlesErrors();
+testCreateUser();

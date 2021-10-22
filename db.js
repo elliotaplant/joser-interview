@@ -53,7 +53,6 @@ class DataBase {
   async addTodo(userId, name) {
     const todo = { name, completed: false };
     this.internalState.todos[userId].push(todo);
-    await this.sync(this.internalState);
     return todo;
   }
 
