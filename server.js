@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('./db');
+const DataBase = require('./db');
 const ONE_HOUR_IN_MS = 1000 * 60 * 60;
+const { sync, load } = require('./jsonPersist');
 
 const app = express();
-const port = 3000;
+
+// Create the database
+const db = new DataBase(sync, load);
 
 // Only serves the index.html file
 app.use(express.static('static'));
@@ -69,7 +72,11 @@ app.put('/todos/:userId', async (req, res, next) => {
   }
 });
 
-app.listen(3000, () => console.log(`App listening at http://localhost:${port}`));
+app.listen(3000, async () => {
+  console.log('App listening at http://localhost:3000');
+  await db.init();
+  console.log('DB has been initialized');
+});
 
 function createSessionToken() {
   return {
