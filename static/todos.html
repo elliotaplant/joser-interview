@@ -35,7 +35,7 @@
         const name = createInput.value;
         createInput.value = '';
         const todo = await post(`/todos/${localStorage.getItem('userId')}`, { name });
-        window.todos.unshift(todo);
+        window.todos.push(todo);
         renderTodos();
       }
       createBtn.onclick = createTodo;
@@ -48,10 +48,10 @@
       }
 
       function renderTodos() {
-        todosUl.innerHTML = todos.map(todo => `
+        todosUl.innerHTML = window.todos.slice().reverse().map(todo => `
           <li class="${todo.completed ? 'completed' : 'uncompleted'}"
             onclick="toggleTodo(event)"
-            data-name=${todo.name}>
+            data-name="${todo.name}">
               ${todo.name}
           </li>
         `)

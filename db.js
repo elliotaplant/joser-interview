@@ -33,7 +33,6 @@ async function createUser(username, password) {
 
 // Checks to see if a username and password combo is in the DB
 async function getUserId(username, enteredPassword) {
-  console.log('simpleJsonDb', simpleJsonDb);
   const { userId, password: storedPasword } = simpleJsonDb.usernames[username];
   if (enteredPassword === storedPasword) {
     return userId;
